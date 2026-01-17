@@ -144,7 +144,7 @@ export function Hero() {
 
     return (
         <section ref={ref} onMouseMove={handleMouseMove} className="relative min-h-screen overflow-hidden py-20">
-            {/* Background */}
+            {/* Background Effects */}
             <div className="absolute inset-0 z-0">
                 <FloatingSymbols />
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]" />
@@ -210,6 +210,7 @@ export function Hero() {
                         </Link>
                     </motion.div>
                 </motion.div>
+
 
                 {/* Live Code Block */}
                 <LiveCodeBlock />

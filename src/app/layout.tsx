@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/providers";
 import { NavbarDemo } from "@/components/layout/NavbarDemo";
 import { Footer } from "@/components/layout/Footer";
+import { GlobalVideoBackground } from "@/components/layout/GlobalVideoBackground";
 import { cn } from "@/lib/utils";
 import { SmoothScroll } from "@/components/motion/smooth-scroll";
 import { CommandBar } from "@/components/features/navigation/CommandBar";
@@ -34,8 +35,9 @@ export default function RootLayout({
                     enableSystem
                     disableTransitionOnChange
                 >
+                    <GlobalVideoBackground />
                     <SmoothScroll>
-                        <div className="flex min-h-screen flex-col">
+                        <div className="relative z-10 flex min-h-screen flex-col">
                             <NavbarDemo />
                             <main className="flex-1 pt-16">{children}</main>
                             <Footer />
