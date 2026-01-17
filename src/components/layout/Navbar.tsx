@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/resizable-navbar";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { IconSearch } from "@tabler/icons-react";
 
 export function NavbarDemo() {
     const pathname = usePathname();
@@ -23,6 +24,12 @@ export function NavbarDemo() {
         { name: "Leaderboard", link: "/leaderboard" },
         { name: "Resources", link: "/resources" },
     ];
+
+    const openCommandBar = () => {
+        if (typeof window !== "undefined" && (window as any).__openCommandBar) {
+            (window as any).__openCommandBar();
+        }
+    };
 
     return (
         <div className="fixed top-0 z-50 w-full">
@@ -54,11 +61,19 @@ export function NavbarDemo() {
                         })}
                     </div>
 
-                    {/* COMMAND CTA */}
+                    {/* ACTIONS */}
                     <div className="flex items-center gap-3">
-                        <span className="hidden md:block text-xs text-neutral-500">
-                            ⌘ Dev Mode
-                        </span>
+                        {/* Quick Actions Button */}
+                        <button
+                            onClick={openCommandBar}
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-800/80 border border-neutral-700/50 hover:border-neutral-600 transition-all text-sm"
+                        >
+                            <IconSearch className="w-4 h-4 text-neutral-500" />
+                            <span className="text-neutral-400 hidden lg:inline">Quick Actions</span>
+                            <kbd className="hidden lg:inline-flex items-center px-1.5 py-0.5 rounded bg-neutral-700 text-[10px] text-neutral-400 font-mono">
+                                ⌘K
+                            </kbd>
+                        </button>
 
                         <NavbarButton
                             variant="secondary"

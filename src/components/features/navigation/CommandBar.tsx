@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, createContext, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     IconBrandGithub,
@@ -19,6 +19,36 @@ const commands = [
     { id: "leaderboard", label: "View Leaderboard", icon: IconTrophy, href: "/leaderboard", shortcut: "G L" },
     { id: "github", label: "GitHub Repo", icon: IconBrandGithub, href: "https://github.com", shortcut: "G G" },
 ];
+
+// Context to control command bar from outside
+const CommandBarContext = createContext<{
+    isOpen: boolean;
+    setIsOpen: (open: boolean) => void;
+} | null>(null);
+
+export function useCommandBar() {
+    const context = useContext(CommandBarContext);
+    if (!context) {
+        throw new Error("useCommandBar must be used within CommandBar");
+    }
+    return context;
+}
+
+// Trigger button component to use in Navbar
+export function CommandBarTrigger({ onClick }: { onClick: () => void }) {
+    return (
+        <button
+            onClick={onClick}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-800/80 border border-neutral-700/50 hover:border-neutral-600 transition-all text-sm"
+        >
+            <IconSearch className="w-4 h-4 text-neutral-500" />
+            <span className="text-neutral-400 hidden sm:inline">Quick Actions</span>
+            <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded bg-neutral-700 text-[10px] text-neutral-400 font-mono">
+                ⌘K
+            </kbd>
+        </button>
+    );
+}
 
 export function CommandBar() {
     const [isOpen, setIsOpen] = useState(false);
@@ -50,22 +80,16 @@ export function CommandBar() {
         }
     }, [isOpen]);
 
+    // Expose setIsOpen globally for navbar to use
+    useEffect(() => {
+        (window as any).__openCommandBar = () => setIsOpen(true);
+        return () => {
+            delete (window as any).__openCommandBar;
+        };
+    }, []);
+
     return (
         <>
-            {/* Trigger Button */}
-            <motion.button
-                onClick={() => setIsOpen(true)}
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1, duration: 0.5 }}
-                className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-2.5 rounded-xl bg-neutral-900/90 border border-neutral-700/50 backdrop-blur-xl shadow-2xl hover:border-neutral-600 transition-all group"
-            >
-                <IconSearch className="w-4 h-4 text-neutral-500" />
-                <span className="text-sm text-neutral-400">Quick Actions</span>
-                <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded bg-neutral-800 text-[10px] text-neutral-500 font-mono">
-                    ⌘K
-                </kbd>
-            </motion.button>
 
             {/* Command Palette Modal */}
             <AnimatePresence>

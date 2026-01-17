@@ -176,9 +176,10 @@ export function Hero() {
                         transition={{ delay: 0.1 }}
                         className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6"
                     >
-                        <span className="text-neutral-200">Code.</span>{" "}
-                        <span className="text-primary">Compete.</span>{" "}
-                        <span className="text-neutral-200">Conquer.</span>
+                        <span className="text-neutral-200">Master Coding</span>{" "}
+                        <br />
+                        <span className="text-neutral-200">with </span>
+                        <span className="text-primary">Kode Club</span>
                     </motion.h1>
 
                     <motion.p

@@ -14,6 +14,7 @@ import {
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { IconSearch } from "@tabler/icons-react";
 
 export function NavbarDemo() {
     const navItems = [
@@ -25,27 +26,45 @@ export function NavbarDemo() {
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+    const openCommandBar = () => {
+        if (typeof window !== "undefined" && (window as any).__openCommandBar) {
+            (window as any).__openCommandBar();
+        }
+    };
+
     return (
-        <div className="fixed top-0 z-50 w-full">
-            <Navbar className="backdrop-blur-md bg-black/60 border-b border-neutral-800">
+        <div className="fixed top-0 z-50 w-full px-4 pt-4">
+            <Navbar className="backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl shadow-lg max-w-7xl mx-auto">
                 {/* Desktop */}
                 <NavBody>
                     <NavbarLogo />
 
-                    <NavItems items={navItems} className="text-sm tracking-wide" />
+                    <NavItems items={navItems} className="text-sm font-medium tracking-wide text-neutral-200" />
 
                     <div className="flex items-center gap-3">
+                        {/* Quick Actions Button */}
+                        <button
+                            onClick={openCommandBar}
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 border border-white/10 hover:border-white/30 hover:bg-white/20 transition-all text-sm group"
+                        >
+                            <IconSearch className="w-4 h-4 text-neutral-400 group-hover:text-white transition-colors" />
+                            <span className="text-neutral-400 group-hover:text-white transition-colors hidden lg:inline">Quick Actions</span>
+                            <kbd className="hidden lg:inline-flex items-center px-1.5 py-0.5 rounded bg-black/40 text-[10px] text-neutral-400 font-mono border border-white/10">
+                                ⌘K
+                            </kbd>
+                        </button>
+
                         <Link href="/login">
                             <NavbarButton
                                 variant="secondary"
-                                className="text-neutral-300 hover:text-white"
+                                className="text-neutral-200 hover:text-white hover:bg-white/10 border border-transparent hover:border-white/10"
                             >
                                 Sign In
                             </NavbarButton>
                         </Link>
 
                         <Link href="/compiler">
-                            <NavbarButton variant="primary" className="font-medium">
+                            <NavbarButton variant="primary" className="font-medium shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 text-white border-0">
                                 Open Compiler
                             </NavbarButton>
                         </Link>
@@ -85,9 +104,9 @@ export function NavbarDemo() {
                                 </motion.div>
                             ))}
 
-                            <div className="flex flex-col gap-3 pt-4 border-t border-neutral-800 mt-2">
+                            <div className="flex flex-col gap-3 pt-4 border-t border-white/10 mt-2">
                                 <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                                    <NavbarButton variant="secondary" className="w-full">
+                                    <NavbarButton variant="secondary" className="w-full bg-white/5 border border-white/10">
                                         Sign In
                                     </NavbarButton>
                                 </Link>

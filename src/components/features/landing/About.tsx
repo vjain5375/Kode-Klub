@@ -10,22 +10,16 @@ const features = [
         icon: <Code2 className="h-8 w-8" />,
         title: "Daily Practice",
         description: "Consistency is key. New challenges every single day.",
-        color: "from-blue-500/20 to-cyan-500/20",
-        shadow: "group-hover:shadow-blue-500/10",
     },
     {
         icon: <Cpu className="h-8 w-8" />,
         title: "Instant Execution",
         description: "Run code in 4+ languages with our sandboxed compiler.",
-        color: "from-purple-500/20 to-pink-500/20",
-        shadow: "group-hover:shadow-purple-500/10",
     },
     {
         icon: <Users className="h-8 w-8" />,
         title: "Live Leaderboards",
         description: "Compete with peers and climb the global rankings.",
-        color: "from-amber-500/20 to-orange-500/20",
-        shadow: "group-hover:shadow-amber-500/10",
     },
 ];
 
@@ -71,16 +65,27 @@ function FeatureCard({ feature, index }: { feature: any; index: number }) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ delay: index * 0.2, duration: 0.5, ease: "easeOut" }}
-            whileHover={{ y: -12, scale: 1.02 }}
+            whileHover={{ y: -8, scale: 1.02 }}
             className={cn(
-                "group relative overflow-hidden rounded-2xl border bg-background/50 p-8 transition-all duration-300 hover:border-primary/20 hover:shadow-2xl",
-                feature.shadow
+                "group relative overflow-hidden rounded-2xl p-8 transition-all duration-300 cursor-pointer",
+                // Dark glassmorphism
+                "bg-black/40 backdrop-blur-xl",
+                "border border-neutral-800",
+                // Hover - subtle blue/purple glow
+                "hover:border-blue-500/30",
+                "hover:shadow-[0_0_30px_rgba(59,130,246,0.15)]"
             )}
         >
-            <div className={cn("absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100 bg-gradient-to-br", feature.color)} />
+            {/* Inner glow on hover */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-blue-500/10 via-transparent to-purple-500/10 rounded-2xl" />
 
             <div className="relative z-10 flex flex-col items-center text-center">
-                <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 group-hover:bg-background/80 text-primary group-hover:shadow-inner">
+                {/* Icon container */}
+                <div className={cn(
+                    "mb-6 inline-flex h-16 w-16 items-center justify-center rounded-xl transition-all duration-300",
+                    "bg-blue-500/20 text-blue-400",
+                    "group-hover:bg-blue-500/30 group-hover:scale-110"
+                )}>
                     <motion.div
                         whileHover={{ rotate: [0, -10, 10, -5, 5, 0] }}
                         transition={{ duration: 0.5 }}
@@ -88,8 +93,13 @@ function FeatureCard({ feature, index }: { feature: any; index: number }) {
                         {feature.icon}
                     </motion.div>
                 </div>
-                <h3 className="mb-3 text-2xl font-bold transition-colors group-hover:text-primary">{feature.title}</h3>
-                <p className="text-muted-foreground leading-relaxed group-hover:text-foreground/80 transition-colors">{feature.description}</p>
+
+                <h3 className="mb-3 text-xl font-bold text-white group-hover:text-blue-400 transition-colors">
+                    {feature.title}
+                </h3>
+                <p className="text-neutral-400 text-sm leading-relaxed group-hover:text-neutral-300 transition-colors">
+                    {feature.description}
+                </p>
             </div>
         </motion.div>
     );
