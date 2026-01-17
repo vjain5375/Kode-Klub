@@ -10,43 +10,55 @@ import {
 } from "@tabler/icons-react";
 
 export function FooterSocialDock() {
-    const socialLinks = [
+    const socialIcons = [
         {
             title: "GitHub",
-            icon: (
-                <IconBrandGithub className="h-full w-full text-neutral-400 hover:text-white transition" />
-            ),
+            icon: <IconBrandGithub className="h-full w-full" />,
             href: "https://github.com/kodeclub-rgipt",
         },
         {
             title: "LinkedIn",
-            icon: (
-                <IconBrandLinkedin className="h-full w-full text-neutral-400 hover:text-white transition" />
-            ),
+            icon: <IconBrandLinkedin className="h-full w-full" />,
             href: "https://linkedin.com",
         },
         {
             title: "Discord",
-            icon: (
-                <IconBrandDiscord className="h-full w-full text-neutral-400 hover:text-white transition" />
-            ),
+            icon: <IconBrandDiscord className="h-full w-full" />,
             href: "https://discord.com",
         },
         {
             title: "X (Twitter)",
-            icon: (
-                <IconBrandX className="h-full w-full text-neutral-400 hover:text-white transition" />
-            ),
+            icon: <IconBrandX className="h-full w-full" />,
             href: "https://twitter.com",
         },
         {
             title: "Email",
-            icon: (
-                <IconMail className="h-full w-full text-neutral-400 hover:text-white transition" />
-            ),
+            icon: <IconMail className="h-full w-full" />,
             href: "mailto:kodeclub@rgipt.ac.in",
         },
     ];
+
+    const socialLinks = socialIcons.map((item) => ({
+        ...item,
+        icon: (
+            <div
+                className="
+                group
+                flex h-full w-full items-center justify-center rounded-full
+                bg-transparent
+                text-neutral-400
+                transition-all duration-200 ease-out
+
+                hover:bg-blue-500/20
+                hover:text-blue-400
+                hover:ring-2 hover:ring-blue-500/60
+                hover:shadow-[0_0_20px_rgba(59,130,246,0.7)]
+              "
+            >
+                {item.icon}
+            </div>
+        ),
+    }));
 
     return (
         <div className="w-full py-12 flex flex-col items-center gap-4 border-t border-neutral-800 bg-black">
@@ -56,6 +68,7 @@ export function FooterSocialDock() {
 
             <FloatingDock
                 items={socialLinks}
+                desktopClassName="bg-black/40 border border-neutral-800 backdrop-blur-xl transition-all duration-300 hover:border-blue-500/50 hover:shadow-[0_0_30px_rgba(59,130,246,0.2)] hover:bg-black/60"
                 mobileClassName="translate-y-0"
             />
 

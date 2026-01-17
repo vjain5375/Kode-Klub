@@ -174,13 +174,24 @@ export function Hero() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6"
+                        className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-2"
                     >
                         <span className="text-neutral-200">Master Coding</span>{" "}
                         <br />
                         <span className="text-neutral-200">with </span>
                         <span className="text-primary">Kode Club</span>
                     </motion.h1>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.15 }}
+                        className="text-2xl md:text-4xl font-bold tracking-tight mb-8"
+                    >
+                        <span className="text-neutral-400">Code.</span>{" "}
+                        <span className="text-primary/90">Compete.</span>{" "}
+                        <span className="text-neutral-400">Conquer.</span>
+                    </motion.div>
 
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
