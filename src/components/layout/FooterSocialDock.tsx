@@ -40,24 +40,7 @@ export function FooterSocialDock() {
 
     const socialLinks = socialIcons.map((item) => ({
         ...item,
-        icon: (
-            <div
-                className="
-                group
-                flex h-full w-full items-center justify-center rounded-full
-                bg-transparent
-                text-neutral-400
-                transition-all duration-200 ease-out
-
-                hover:bg-blue-500/20
-                hover:text-blue-400
-                hover:ring-2 hover:ring-blue-500/60
-                hover:shadow-[0_0_20px_rgba(59,130,246,0.7)]
-              "
-            >
-                {item.icon}
-            </div>
-        ),
+        icon: <div className="h-full w-full flex items-center justify-center text-neutral-400 hover:text-blue-400 transition-colors">{item.icon}</div>,
     }));
 
     return (
