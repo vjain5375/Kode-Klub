@@ -1,14 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import { LANGUAGES } from "@/lib/compiler/languages";
 import { ExecutionResponse, ExecutionStatus } from "@/types/compiler";
 
-const JUDGE0_API_URL = process.env.JUDGE0_API_URL || "https://judge0-ce.p.rapidapi.com";
-const JUDGE0_API_KEY = process.env.JUDGE0_API_KEY || "";
+// Piston API - Free, no API key required!
+const PISTON_API_URL = "https://emkc.org/api/v2/piston";
 
-// Rate limiting (simple in-memory, use Redis in production)
+// Language mapping for Piston
+const PISTON_LANGUAGES: Record<string, { language: string; version: string }> = {
+    python: { language: "python", version: "3.10.0" },
+    javascript: { language: "javascript", version: "18.15.0" },
+    typescript: { language: "typescript", version: "5.0.3" },
+    c: { language: "c", version: "10.2.0" },
+    cpp: { language: "c++", version: "10.2.0" },
+    java: { language: "java", version: "15.0.2" },
+    go: { language: "go", version: "1.16.2" },
+    rust: { language: "rust", version: "1.68.2" },
+    bash: { language: "bash", version: "5.2.0" },
+};
+
+// Rate limiting
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT = 10; // requests per minute
-const RATE_WINDOW = 60 * 1000; // 1 minute
+const RATE_LIMIT = 20;
+const RATE_WINDOW = 60 * 1000;
 
 function checkRateLimit(ip: string): boolean {
     const now = Date.now();
@@ -27,55 +39,37 @@ function checkRateLimit(ip: string): boolean {
     return true;
 }
 
-interface Judge0Result {
-    stdout: string | null;
-    stderr: string | null;
-    compile_output: string | null;
-    message: string | null;
-    exit_code: number | null;
-    time: string | null;
-    memory: number | null;
-    status: {
-        id: number;
-        description: string;
+interface PistonResult {
+    run: {
+        stdout: string;
+        stderr: string;
+        code: number;
+        signal: string | null;
+        output: string;
+    };
+    compile?: {
+        stdout: string;
+        stderr: string;
+        code: number;
     };
 }
 
-const STATUS_MAP: Record<number, ExecutionStatus> = {
-    1: 'RUNNING',
-    2: 'RUNNING',
-    3: 'SUCCESS',
-    4: 'RUNTIME_ERROR',
-    5: 'TIME_LIMIT_EXCEEDED',
-    6: 'COMPILATION_ERROR',
-    7: 'RUNTIME_ERROR',
-    8: 'RUNTIME_ERROR',
-    9: 'RUNTIME_ERROR',
-    10: 'RUNTIME_ERROR',
-    11: 'RUNTIME_ERROR',
-    12: 'RUNTIME_ERROR',
-    13: 'INTERNAL_ERROR',
-    14: 'INTERNAL_ERROR',
-};
-
 export async function POST(request: NextRequest) {
     try {
-        // Get client IP for rate limiting
         const ip = request.headers.get('x-forwarded-for') ||
             request.headers.get('x-real-ip') ||
             'unknown';
 
         if (!checkRateLimit(ip)) {
             return NextResponse.json(
-                { success: false, error: 'Rate limit exceeded. Please wait before trying again.' },
+                { success: false, error: 'Rate limit exceeded. Please wait.' },
                 { status: 429 }
             );
         }
 
         const body = await request.json();
-        const { language, code, stdin, timeLimit = 5, memoryLimit = 256 } = body;
+        const { language, code, stdin } = body;
 
-        // Validate input
         if (!language || !code) {
             return NextResponse.json(
                 { success: false, error: 'Language and code are required' },
@@ -83,7 +77,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const langConfig = LANGUAGES[language];
+        const langConfig = PISTON_LANGUAGES[language];
         if (!langConfig) {
             return NextResponse.json(
                 { success: false, error: `Unsupported language: ${language}` },
@@ -91,7 +85,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Check code size (64KB max)
+        // Check code size
         if (code.length > 64 * 1024) {
             return NextResponse.json(
                 { success: false, error: 'Code exceeds maximum size of 64KB' },
@@ -99,62 +93,54 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Check stdin size (1MB max)
-        if (stdin && stdin.length > 1024 * 1024) {
-            return NextResponse.json(
-                { success: false, error: 'Input exceeds maximum size of 1MB' },
-                { status: 400 }
-            );
-        }
+        // Execute with Piston API
+        const startTime = Date.now();
 
-        // Prepare headers
-        const headers: Record<string, string> = {
-            'Content-Type': 'application/json',
-        };
+        const pistonResponse = await fetch(`${PISTON_API_URL}/execute`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                language: langConfig.language,
+                version: langConfig.version,
+                files: [{ content: code }],
+                stdin: stdin || '',
+                run_timeout: 10000, // 10 seconds
+            }),
+        });
 
-        if (JUDGE0_API_URL.includes('rapidapi')) {
-            headers['X-RapidAPI-Key'] = JUDGE0_API_KEY;
-            headers['X-RapidAPI-Host'] = 'judge0-ce.p.rapidapi.com';
-        }
+        const executionTime = Date.now() - startTime;
 
-        // Submit to Judge0
-        const submitResponse = await fetch(
-            `${JUDGE0_API_URL}/submissions?base64_encoded=false&wait=true`,
-            {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({
-                    source_code: code,
-                    language_id: langConfig.judge0Id,
-                    stdin: stdin || '',
-                    cpu_time_limit: timeLimit,
-                    memory_limit: memoryLimit * 1024, // KB
-                }),
-            }
-        );
-
-        if (!submitResponse.ok) {
-            const errorText = await submitResponse.text();
-            console.error('Judge0 error:', errorText);
+        if (!pistonResponse.ok) {
+            const errorText = await pistonResponse.text();
+            console.error('Piston error:', errorText);
             return NextResponse.json(
                 { success: false, error: 'Execution service error' },
                 { status: 502 }
             );
         }
 
-        const result: Judge0Result = await submitResponse.json();
-        const status = STATUS_MAP[result.status.id] || 'INTERNAL_ERROR';
+        const result: PistonResult = await pistonResponse.json();
+
+        // Determine status
+        let status: ExecutionStatus = 'SUCCESS';
+        if (result.compile && result.compile.code !== 0) {
+            status = 'COMPILATION_ERROR';
+        } else if (result.run.code !== 0) {
+            status = 'RUNTIME_ERROR';
+        } else if (result.run.signal === 'SIGKILL') {
+            status = 'TIME_LIMIT_EXCEEDED';
+        }
 
         const response: ExecutionResponse = {
             success: status === 'SUCCESS',
             data: {
-                stdout: result.stdout || '',
-                stderr: result.stderr || result.message || '',
-                exitCode: result.exit_code,
-                executionTime: result.time ? parseFloat(result.time) * 1000 : null,
-                memoryUsed: result.memory ? result.memory / 1024 : null,
+                stdout: result.run.stdout || '',
+                stderr: result.run.stderr || '',
+                exitCode: result.run.code,
+                executionTime,
+                memoryUsed: null, // Piston doesn't provide memory info
                 status,
-                compileOutput: result.compile_output || undefined,
+                compileOutput: result.compile?.stderr || undefined,
             },
         };
 
