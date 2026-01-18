@@ -7,6 +7,10 @@ import { motion, useMotionValue, useSpring } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { STAGGER_CHILD_VARIANTS } from "@/lib/motion";
 import { FloatingSymbols } from "./FloatingSymbols";
+import {
+    ScrollVelocityContainer,
+    ScrollVelocityRow,
+} from "@/components/motion/scroll-based-velocity";
 
 const codeLines = [
     { text: "// Today's DPP: Two Sum", delay: 0 },
@@ -151,7 +155,7 @@ export function Hero() {
                 <div className="absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/5 blur-[100px]" />
             </div>
 
-            <div className="container relative z-10">
+            <div className="container relative z-20">
                 {/* Top Badge */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -277,9 +281,35 @@ export function Hero() {
                     </motion.div>
                 </motion.div>
 
+                {/* Velocity Text Section - Takes up vertical space */}
+                <div className="relative py-16 my-16 overflow-hidden">
+                    {/* Gradient Fades */}
+                    <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-background to-transparent z-10" />
+                    <div className="pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-background to-transparent z-10" />
 
-                {/* Live Code Block */}
-                <LiveCodeBlock />
+                    <ScrollVelocityContainer className="pointer-events-none flex flex-col justify-center gap-16 text-center">
+                        <ScrollVelocityRow
+                            baseVelocity={1}
+                            direction={1}
+                            className="text-white/15 text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-[0.2em]"
+                        >
+                            CODE • BUILD • INNOVATE • REPEAT •
+                        </ScrollVelocityRow>
+
+                        <ScrollVelocityRow
+                            baseVelocity={1}
+                            direction={-1}
+                            className="text-white/15 text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-[0.2em]"
+                        >
+                            KODE CLUB • RGIPT • OPEN SOURCE •
+                        </ScrollVelocityRow>
+                    </ScrollVelocityContainer>
+                </div>
+
+                {/* Live Code Block - Separate section with spacing */}
+                <div className="mt-16">
+                    <LiveCodeBlock />
+                </div>
             </div>
         </section>
     );
